@@ -6,14 +6,12 @@
     <title>For Shizun</title>
     
     <link href="https://fonts.googleapis.com/css2?family=Fredoka+One&family=Varela+Round&display=swap" rel="stylesheet">
-    
     <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.6.0/dist/confetti.browser.min.js"></script>
     
     <style>
         :root {
             --binghe-red: #b30000;
             --gold: #d4af37;
-            --soft-pink: #ffe5ec;
             --kawaii-pink: #ff4d6d;
         }
 
@@ -27,17 +25,10 @@
             background: radial-gradient(circle, #ffffff 0%, #ffe5ec 100%);
             font-family: 'Varela Round', sans-serif;
             overflow: hidden;
-            touch-action: manipulation;
+            touch-action: none; /* Prevents scrolling/zooming while she tries to tap */
         }
 
-        /* Initial Page */
-        #entry-page {
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            justify-content: center;
-            z-index: 100;
-        }
+        #entry-page { z-index: 100; }
 
         .click-btn {
             padding: 20px 40px;
@@ -48,7 +39,6 @@
             border: 3px solid var(--gold);
             border-radius: 50px;
             cursor: pointer;
-            box-shadow: 0 10px 25px rgba(0,0,0,0.2);
             animation: pulse 1.5s infinite;
         }
 
@@ -58,7 +48,6 @@
             100% { transform: scale(1); }
         }
 
-        /* Valentine Page */
         #valentine-page {
             display: none;
             flex-direction: column;
@@ -75,83 +64,80 @@
             width: 85%;
             max-width: 350px;
             text-align: center;
+            position: relative;
         }
 
         .gif-container {
-            height: 200px;
+            height: 180px;
             margin-bottom: 15px;
             display: flex;
             justify-content: center;
             align-items: center;
-            background: #fff;
-            border-radius: 15px;
         }
 
         img {
             max-height: 100%;
-            max-width: 100%;
             border-radius: 15px;
             border: 2px solid var(--gold);
-            display: block;
         }
 
-        h1 { 
-            color: var(--binghe-red); 
-            font-family: 'Fredoka One', cursive; 
-            font-size: 1.5rem;
-            margin: 0 0 20px 0;
-        }
+        h1 { color: var(--binghe-red); font-family: 'Fredoka One', cursive; font-size: 1.5rem; }
 
         .buttons {
             display: flex;
-            justify-content: space-around;
+            justify-content: center;
+            gap: 20px;
             width: 100%;
-            height: 60px;
-            position: relative;
-        }
-
-        button {
-            padding: 12px 28px;
-            font-size: 1.1rem;
-            font-family: 'Fredoka One', cursive;
-            border: none;
-            border-radius: 50px;
-            cursor: pointer;
+            height: 80px;
+            margin-top: 20px;
         }
 
         #yesBtn {
+            padding: 12px 30px;
+            font-size: 1.2rem;
+            font-family: 'Fredoka One', cursive;
             background: linear-gradient(45deg, var(--kawaii-pink), var(--binghe-red));
             color: white;
+            border: none;
+            border-radius: 50px;
+            cursor: pointer;
+            z-index: 10;
+        }
+
+        /* The No Button Container (The Ghost Zone) */
+        #no-wrapper {
+            position: absolute;
+            display: inline-block;
+            padding: 30px; /* This makes the "clickable" area much larger than the button */
+            z-index: 20;
+            touch-action: none;
         }
 
         #noBtn {
+            padding: 12px 30px;
+            font-size: 1.1rem;
+            font-family: 'Fredoka One', cursive;
             background-color: #1a1a1a;
             color: white;
-            position: absolute;
-            transition: all 0.1s ease-out;
+            border: none;
+            border-radius: 50px;
+            pointer-events: none; /* The actual button can't be touched */
         }
 
-        #success-msg {
-            display: none;
-            color: var(--binghe-red);
-            font-family: 'Fredoka One', cursive;
-            font-size: 1.4rem;
-        }
+        #success-msg { display: none; color: var(--binghe-red); font-family: 'Fredoka One', cursive; font-size: 1.4rem; }
 
         .shake { animation: shake 0.3s; }
         @keyframes shake {
             0% { transform: translate(1px, 1px) rotate(0deg); }
             20% { transform: translate(-3px, 0px) rotate(-1deg); }
             40% { transform: translate(3px, 2px) rotate(1deg); }
-            60% { transform: translate(-3px, 1px) rotate(-1deg); }
-            80% { transform: translate(3px, 1px) rotate(1deg); }
-            100% { transform: translate(1px, -2px) rotate(0deg); }
+            100% { transform: translate(0px, 0px) rotate(0deg); }
         }
     </style>
 </head>
 <body>
 
-    <audio id="bgMusic" loop preload="auto">
+    <audio id="bgMusic" loop>
         <source src="music.mp3" type="audio/mpeg">
     </audio>
 
@@ -162,96 +148,80 @@
     <div id="valentine-page">
         <div id="container">
             <div class="gif-container">
-                <img id="bingheGif" src="idle.gif" alt="Luo Binghe">
+                <img id="bingheGif" src="idle.gif" alt="Binghe">
             </div>
-            
-            <h1 id="questionText">Shizun, will you Please be my Valentine?</h1>
-            
-            <div class="buttons" id="buttonLayout">
+            <h1 id="questionText">Shizun, will you Pleasee be my Valentine?</h1>
+            <div class="buttons">
                 <button id="yesBtn">YES! ❤️</button>
-                <button id="noBtn">No</button>
+                <div id="no-wrapper">
+                    <button id="noBtn">No</button>
+                </div>
             </div>
-            
-            <div id="success-msg">
-                I knew Shizun wouldn't leave me! <br>✨ I love you! ✨
-            </div>
+            <div id="success-msg">I knew Shizun wouldn't leave me! <br>✨ I super love you! ✨</div>
         </div>
     </div>
 
     <script>
+        const noWrapper = document.getElementById('no-wrapper');
         const noBtn = document.getElementById('noBtn');
         const yesBtn = document.getElementById('yesBtn');
         const gif = document.getElementById('bingheGif');
         const container = document.getElementById('container');
         const music = document.getElementById('bgMusic');
-        const vPage = document.getElementById('valentine-page');
-        const ePage = document.getElementById('entry-page');
-
-        // FORCE LOWERCASE FILENAMES
-        const idlePath = "idle.gif"; 
-        const angryPath = "angry.gif";
-        const happyPath = "happy.gif";
 
         function startValentine() {
-            ePage.style.display = 'none';
-            vPage.style.display = 'flex';
-            
-            // Set first GIF with a cache-buster
-            gif.src = idlePath + "?t=" + new Date().getTime();
-            
-            // Audio play
-            music.muted = false;
-            music.play().catch(e => console.log("Audio requires one more click"));
-        }
-
-        function moveNoButton() {
-            // Update to Angry GIF
-            gif.src = angryPath + "?t=" + new Date().getTime();
-            
-            // Shake effect
-            container.classList.add('shake');
-            setTimeout(() => container.classList.remove('shake'), 300);
-
-            // Move button logic
-            const maxX = window.innerWidth - noBtn.offsetWidth - 30;
-            const maxY = window.innerHeight - noBtn.offsetHeight - 30;
-            const randomX = Math.max(15, Math.floor(Math.random() * maxX));
-            const randomY = Math.max(15, Math.floor(Math.random() * maxY));
-
-            noBtn.style.position = "fixed";
-            noBtn.style.left = randomX + "px";
-            noBtn.style.top = randomY + "px";
-            
-            // Backup audio trigger
+            document.getElementById('entry-page').style.display = 'none';
+            document.getElementById('valentine-page').style.display = 'flex';
             music.play();
         }
 
-        // Mobile touch support
-        noBtn.addEventListener('touchstart', (e) => {
-            e.preventDefault();
-            moveNoButton();
-        });
+        function escape() {
+            // Change to Angry Binghe
+            gif.src = "angry.gif?t=" + new Date().getTime();
+            
+            // Screen Shake
+            container.classList.add('shake');
+            setTimeout(() => container.classList.remove('shake'), 300);
 
-        // Mouse hover support
-        noBtn.addEventListener('mouseover', moveNoButton);
+            // Small "Explosion" effect where the button was
+            const rect = noBtn.getBoundingClientRect();
+            confetti({
+                particleCount: 10,
+                spread: 30,
+                origin: { 
+                    x: (rect.left + rect.width/2) / window.innerWidth, 
+                    y: (rect.top + rect.height/2) / window.innerHeight 
+                },
+                colors: ['#ff0000', '#000000']
+            });
+
+            // Move to random spot
+            const maxX = window.innerWidth - noWrapper.offsetWidth - 40;
+            const maxY = window.innerHeight - noWrapper.offsetHeight - 40;
+            const randomX = Math.max(20, Math.floor(Math.random() * maxX));
+            const randomY = Math.max(20, Math.floor(Math.random() * maxY));
+
+            noWrapper.style.position = "fixed";
+            noWrapper.style.left = randomX + "px";
+            noWrapper.style.top = randomY + "px";
+        }
+
+        // Detect touch/mouse on the WRAPPER (Ghost Zone)
+        noWrapper.addEventListener('touchstart', (e) => {
+            e.preventDefault();
+            escape();
+        });
+        noWrapper.addEventListener('mouseover', escape);
 
         yesBtn.addEventListener('click', () => {
-            // Update to Happy GIF
-            gif.src = happyPath + "?t=" + new Date().getTime();
-            
+            gif.src = "happy.gif?t=" + new Date().getTime();
             document.getElementById('questionText').style.display = 'none';
-            document.getElementById('buttonLayout').style.display = 'none';
+            noWrapper.style.display = 'none';
+            yesBtn.style.display = 'none';
             document.getElementById('success-msg').style.display = 'block';
             
-            // Celebration
-            confetti({
-                particleCount: 150,
-                spread: 70,
-                origin: { y: 0.6 },
-                colors: ['#b30000', '#ff4d6d', '#d4af37']
-            });
+            confetti({ particleCount: 150, spread: 70, origin: { y: 0.6 } });
         });
     </script>
 </body>
 </html>
-
