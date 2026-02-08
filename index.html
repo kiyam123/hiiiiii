@@ -6,6 +6,7 @@
     <title>For Shizun</title>
     
     <link href="https://fonts.googleapis.com/css2?family=Fredoka+One&family=Varela+Round&display=swap" rel="stylesheet">
+    
     <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.6.0/dist/confetti.browser.min.js"></script>
     
     <style>
@@ -29,7 +30,14 @@
             touch-action: manipulation;
         }
 
-        #entry-page { z-index: 100; }
+        /* Initial Page */
+        #entry-page {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            z-index: 100;
+        }
 
         .click-btn {
             padding: 20px 40px;
@@ -39,6 +47,8 @@
             color: white;
             border: 3px solid var(--gold);
             border-radius: 50px;
+            cursor: pointer;
+            box-shadow: 0 10px 25px rgba(0,0,0,0.2);
             animation: pulse 1.5s infinite;
         }
 
@@ -48,6 +58,7 @@
             100% { transform: scale(1); }
         }
 
+        /* Valentine Page */
         #valentine-page {
             display: none;
             flex-direction: column;
@@ -63,45 +74,49 @@
             box-shadow: 0 10px 30px rgba(179, 0, 0, 0.2);
             width: 85%;
             max-width: 350px;
-            transition: transform 0.1s; /* For shake effect */
+            text-align: center;
         }
 
         .gif-container {
-            height: 180px;
+            height: 200px;
             margin-bottom: 15px;
             display: flex;
             justify-content: center;
             align-items: center;
+            background: #fff;
+            border-radius: 15px;
         }
 
         img {
             max-height: 100%;
+            max-width: 100%;
             border-radius: 15px;
             border: 2px solid var(--gold);
+            display: block;
         }
 
         h1 { 
             color: var(--binghe-red); 
             font-family: 'Fredoka One', cursive; 
             font-size: 1.5rem;
-            margin-bottom: 20px;
+            margin: 0 0 20px 0;
         }
 
         .buttons {
             display: flex;
             justify-content: space-around;
             width: 100%;
-            height: 50px;
+            height: 60px;
             position: relative;
         }
 
         button {
-            padding: 10px 25px;
+            padding: 12px 28px;
             font-size: 1.1rem;
             font-family: 'Fredoka One', cursive;
             border: none;
             border-radius: 50px;
-            z-index: 10;
+            cursor: pointer;
         }
 
         #yesBtn {
@@ -113,22 +128,17 @@
             background-color: #1a1a1a;
             color: white;
             position: absolute;
-            transition: all 0.15s ease-out;
+            transition: all 0.1s ease-out;
         }
 
-        #success {
+        #success-msg {
             display: none;
             color: var(--binghe-red);
             font-family: 'Fredoka One', cursive;
             font-size: 1.4rem;
-            line-height: 1.4;
         }
 
-        /* Shake animation for when she tries to hit No */
-        .shake {
-            animation: shake 0.3s;
-        }
-
+        .shake { animation: shake 0.3s; }
         @keyframes shake {
             0% { transform: translate(1px, 1px) rotate(0deg); }
             20% { transform: translate(-3px, 0px) rotate(-1deg); }
@@ -141,8 +151,8 @@
 </head>
 <body>
 
-    <audio id="bgMusic" loop>
-        <source src="https://files.freemusicarchive.org/storage-freemusicarchive-org/music/no_curator/Vacation/Vacation/Vacation_-_01_-_Telephone.mp3" type="audio/mpeg">
+    <audio id="bgMusic" loop preload="auto">
+        <source src="music.mp3" type="audio/mpeg">
     </audio>
 
     <div id="entry-page">
@@ -152,7 +162,7 @@
     <div id="valentine-page">
         <div id="container">
             <div class="gif-container">
-                <img id="bingheGif" src="idle.gif" alt="Binghe">
+                <img id="bingheGif" src="idle.gif" alt="Luo Binghe">
             </div>
             
             <h1 id="questionText">Shizun, will you be my Valentine?</h1>
@@ -162,7 +172,7 @@
                 <button id="noBtn">No</button>
             </div>
             
-            <div id="success">
+            <div id="success-msg">
                 I knew Shizun wouldn't leave me! <br>✨ I love you! ✨
             </div>
         </div>
@@ -174,56 +184,71 @@
         const gif = document.getElementById('bingheGif');
         const container = document.getElementById('container');
         const music = document.getElementById('bgMusic');
+        const vPage = document.getElementById('valentine-page');
+        const ePage = document.getElementById('entry-page');
 
-        const idleGif = "idle.gif"; 
-        const angryGif = "angry.gif";
-        const happyGif = "happy.gif";
+        // FORCE LOWERCASE FILENAMES
+        const idlePath = "idle.gif"; 
+        const angryPath = "angry.gif";
+        const happyPath = "happy.gif";
 
         function startValentine() {
-            document.getElementById('entry-page').style.display = 'none';
-            document.getElementById('valentine-page').style.display = 'flex';
-            music.play().catch(() => {});
+            ePage.style.display = 'none';
+            vPage.style.display = 'flex';
+            
+            // Set first GIF with a cache-buster
+            gif.src = idlePath + "?t=" + new Date().getTime();
+            
+            // Audio play
+            music.muted = false;
+            music.play().catch(e => console.log("Audio requires one more click"));
         }
 
         function moveNoButton() {
-            // Binghe gets angry
-            gif.src = angryGif;
+            // Update to Angry GIF
+            gif.src = angryPath + "?t=" + new Date().getTime();
             
-            // Add a shake effect to the card
+            // Shake effect
             container.classList.add('shake');
             setTimeout(() => container.classList.remove('shake'), 300);
 
-            // Calculate random position within phone screen bounds
-            const maxX = window.innerWidth - noBtn.offsetWidth - 20;
-            const maxY = window.innerHeight - noBtn.offsetHeight - 20;
-            
-            const randomX = Math.max(10, Math.floor(Math.random() * maxX));
-            const randomY = Math.max(10, Math.floor(Math.random() * maxY));
+            // Move button logic
+            const maxX = window.innerWidth - noBtn.offsetWidth - 30;
+            const maxY = window.innerHeight - noBtn.offsetHeight - 30;
+            const randomX = Math.max(15, Math.floor(Math.random() * maxX));
+            const randomY = Math.max(15, Math.floor(Math.random() * maxY));
 
             noBtn.style.position = "fixed";
             noBtn.style.left = randomX + "px";
             noBtn.style.top = randomY + "px";
+            
+            // Backup audio trigger
+            music.play();
         }
 
-        // On mobile, "touchstart" is the magic event
+        // Mobile touch support
         noBtn.addEventListener('touchstart', (e) => {
-            e.preventDefault(); // Stop the click from happening
+            e.preventDefault();
             moveNoButton();
         });
 
-        // Also move on hover just in case she uses a tablet/laptop
+        // Mouse hover support
         noBtn.addEventListener('mouseover', moveNoButton);
 
         yesBtn.addEventListener('click', () => {
-            gif.src = happyGif;
+            // Update to Happy GIF
+            gif.src = happyPath + "?t=" + new Date().getTime();
+            
             document.getElementById('questionText').style.display = 'none';
             document.getElementById('buttonLayout').style.display = 'none';
-            document.getElementById('success').style.display = 'block';
+            document.getElementById('success-msg').style.display = 'block';
             
+            // Celebration
             confetti({
                 particleCount: 150,
                 spread: 70,
-                origin: { y: 0.6 }
+                origin: { y: 0.6 },
+                colors: ['#b30000', '#ff4d6d', '#d4af37']
             });
         });
     </script>
