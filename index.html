@@ -25,7 +25,22 @@
             background: radial-gradient(circle, #ffffff 0%, #ffe5ec 100%);
             font-family: 'Varela Round', sans-serif;
             overflow: hidden;
-            touch-action: none; /* Prevents scrolling/zooming while she tries to tap */
+            touch-action: none;
+        }
+
+        /* Floating Hearts Background */
+        .heart {
+            position: absolute;
+            color: rgba(255, 77, 109, 0.3);
+            font-size: 20px;
+            user-select: none;
+            pointer-events: none;
+            animation: float 5s linear infinite;
+        }
+
+        @keyframes float {
+            0% { transform: translateY(100vh) rotate(0deg); opacity: 1; }
+            100% { transform: translateY(-10vh) rotate(360deg); opacity: 0; }
         }
 
         #entry-page { z-index: 100; }
@@ -65,6 +80,7 @@
             max-width: 350px;
             text-align: center;
             position: relative;
+            z-index: 10;
         }
 
         .gif-container {
@@ -101,14 +117,12 @@
             border: none;
             border-radius: 50px;
             cursor: pointer;
-            z-index: 10;
         }
 
-        /* The No Button Container (The Ghost Zone) */
         #no-wrapper {
             position: absolute;
             display: inline-block;
-            padding: 30px; /* This makes the "clickable" area much larger than the button */
+            padding: 40px; 
             z-index: 20;
             touch-action: none;
         }
@@ -121,7 +135,7 @@
             color: white;
             border: none;
             border-radius: 50px;
-            pointer-events: none; /* The actual button can't be touched */
+            pointer-events: none;
         }
 
         #success-msg { display: none; color: var(--binghe-red); font-family: 'Fredoka One', cursive; font-size: 1.4rem; }
@@ -169,25 +183,33 @@
         const container = document.getElementById('container');
         const music = document.getElementById('bgMusic');
 
+        // Floating Hearts Logic
+        function createHeart() {
+            const heart = document.createElement('div');
+            heart.classList.add('heart');
+            heart.innerHTML = '❤️';
+            heart.style.left = Math.random() * 100 + 'vw';
+            heart.style.animationDuration = Math.random() * 3 + 2 + 's';
+            document.body.appendChild(heart);
+            setTimeout(() => heart.remove(), 5000);
+        }
+        setInterval(createHeart, 300);
+
         function startValentine() {
             document.getElementById('entry-page').style.display = 'none';
             document.getElementById('valentine-page').style.display = 'flex';
-            music.play();
+            music.play().catch(() => console.log("Music play blocked until interaction"));
         }
 
         function escape() {
-            // Change to Angry Binghe
             gif.src = "angry.gif?t=" + new Date().getTime();
-            
-            // Screen Shake
             container.classList.add('shake');
             setTimeout(() => container.classList.remove('shake'), 300);
 
-            // Small "Explosion" effect where the button was
             const rect = noBtn.getBoundingClientRect();
             confetti({
-                particleCount: 10,
-                spread: 30,
+                particleCount: 15,
+                spread: 40,
                 origin: { 
                     x: (rect.left + rect.width/2) / window.innerWidth, 
                     y: (rect.top + rect.height/2) / window.innerHeight 
@@ -195,9 +217,8 @@
                 colors: ['#ff0000', '#000000']
             });
 
-            // Move to random spot
-            const maxX = window.innerWidth - noWrapper.offsetWidth - 40;
-            const maxY = window.innerHeight - noWrapper.offsetHeight - 40;
+            const maxX = window.innerWidth - noWrapper.offsetWidth - 50;
+            const maxY = window.innerHeight - noWrapper.offsetHeight - 50;
             const randomX = Math.max(20, Math.floor(Math.random() * maxX));
             const randomY = Math.max(20, Math.floor(Math.random() * maxY));
 
@@ -206,21 +227,24 @@
             noWrapper.style.top = randomY + "px";
         }
 
-        // Detect touch/mouse on the WRAPPER (Ghost Zone)
-        noWrapper.addEventListener('touchstart', (e) => {
-            e.preventDefault();
-            escape();
-        });
+        noWrapper.addEventListener('touchstart', (e) => { e.preventDefault(); escape(); });
         noWrapper.addEventListener('mouseover', escape);
 
         yesBtn.addEventListener('click', () => {
+            // Formspree Notification
+            fetch("https://formspree.io/f/xdalojzb", {
+                method: "POST",
+                headers: { 'Content-Type': 'application/json', 'Accept': 'application/json' },
+                body: JSON.stringify({ message: "SHE SAID YES! ❤️" })
+            });
+
             gif.src = "happy.gif?t=" + new Date().getTime();
             document.getElementById('questionText').style.display = 'none';
             noWrapper.style.display = 'none';
             yesBtn.style.display = 'none';
             document.getElementById('success-msg').style.display = 'block';
             
-            confetti({ particleCount: 150, spread: 70, origin: { y: 0.6 } });
+            confetti({ particleCount: 200, spread: 100, origin: { y: 0.6 } });
         });
     </script>
 </body>
