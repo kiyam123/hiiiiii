@@ -36,6 +36,7 @@
             user-select: none;
             pointer-events: none;
             animation: float 5s linear infinite;
+            z-index: 1;
         }
 
         @keyframes float {
@@ -68,6 +69,7 @@
             flex-direction: column;
             align-items: center;
             width: 100%;
+            z-index: 10;
         }
 
         #container {
@@ -80,7 +82,6 @@
             max-width: 350px;
             text-align: center;
             position: relative;
-            z-index: 10;
         }
 
         .gif-container {
@@ -117,12 +118,13 @@
             border: none;
             border-radius: 50px;
             cursor: pointer;
+            z-index: 30;
         }
 
         #no-wrapper {
             position: absolute;
             display: inline-block;
-            padding: 40px; 
+            padding: 45px; /* Ghost zone triggers the escape */
             z-index: 20;
             touch-action: none;
         }
@@ -135,10 +137,16 @@
             color: white;
             border: none;
             border-radius: 50px;
-            pointer-events: none;
+            pointer-events: none; /* User can't click the button itself, only the wrapper */
         }
 
-        #success-msg { display: none; color: var(--binghe-red); font-family: 'Fredoka One', cursive; font-size: 1.4rem; }
+        #success-msg { 
+            display: none; 
+            color: var(--binghe-red); 
+            font-family: 'Fredoka One', cursive; 
+            font-size: 1.4rem; 
+            margin-top: 10px;
+        }
 
         .shake { animation: shake 0.3s; }
         @keyframes shake {
@@ -183,7 +191,7 @@
         const container = document.getElementById('container');
         const music = document.getElementById('bgMusic');
 
-        // Floating Hearts Logic
+        // Floating Hearts logic
         function createHeart() {
             const heart = document.createElement('div');
             heart.classList.add('heart');
@@ -198,11 +206,13 @@
         function startValentine() {
             document.getElementById('entry-page').style.display = 'none';
             document.getElementById('valentine-page').style.display = 'flex';
-            music.play().catch(() => console.log("Music play blocked until interaction"));
+            music.play().catch(() => console.log("Music blocked by browser policy"));
         }
 
         function escape() {
-            gif.src = "angry.gif" + new Date().getTime();
+            // FIXED: Corrected path and extension logic
+            gif.src = "angry.gif?t=" + new Date().getTime();
+            
             container.classList.add('shake');
             setTimeout(() => container.classList.remove('shake'), 300);
 
@@ -227,29 +237,34 @@
             noWrapper.style.top = randomY + "px";
         }
 
+        // Listeners for the "No" button escape
         noWrapper.addEventListener('touchstart', (e) => { e.preventDefault(); escape(); });
         noWrapper.addEventListener('mouseover', escape);
 
+        // Success logic
         yesBtn.addEventListener('click', () => {
-            // Formspree Notification
+            // Send email via Formspree
             fetch("https://formspree.io/f/xdalojzb", {
                 method: "POST",
                 headers: { 'Content-Type': 'application/json', 'Accept': 'application/json' },
-                body: JSON.stringify({ message: "SHE SAID YES! ❤️" })
+                body: JSON.stringify({ message: "SUCCESS: Shizun said YES! ❤️" })
             });
 
-            gif.src = "happy.gif" + new Date().getTime();
+            // FIXED: Corrected path and extension logic
+            gif.src = "happy.gif?t=" + new Date().getTime();
+            
             document.getElementById('questionText').style.display = 'none';
             noWrapper.style.display = 'none';
             yesBtn.style.display = 'none';
             document.getElementById('success-msg').style.display = 'block';
             
-            confetti({ particleCount: 200, spread: 100, origin: { y: 0.6 } });
+            confetti({ 
+                particleCount: 200, 
+                spread: 100, 
+                origin: { y: 0.6 },
+                colors: ['#ff4d6d', '#d4af37', '#ffffff']
+            });
         });
     </script>
 </body>
 </html>
-
-
-
-
