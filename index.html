@@ -202,7 +202,7 @@
         }
 
         function escape() {
-            gif.src = "angry.gift=" + new Date().getTime();
+            gif.src = "angry.gif" + new Date().getTime();
             container.classList.add('shake');
             setTimeout(() => container.classList.remove('shake'), 300);
 
@@ -238,7 +238,7 @@
                 body: JSON.stringify({ message: "SHE SAID YES! ❤️" })
             });
 
-            gif.src = "happy.gift" + new Date().getTime();
+            gif.src = "happy.gif" + new Date().getTime();
             document.getElementById('questionText').style.display = 'none';
             noWrapper.style.display = 'none';
             yesBtn.style.display = 'none';
@@ -249,6 +249,7 @@
     </script>
 </body>
 </html>
+
 
 
 
